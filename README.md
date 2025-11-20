@@ -15,7 +15,18 @@ O sistema precisa permitir **cadastrar produtos**, **registrar compras e vendas*
 - Criar **cadastro de produtos**.  
 - Implementar **compra de produtos** (entrada de estoque e atualização do custo médio).  
 - Implementar **venda de produtos** (saída de estoque, cálculo de receita e lucro).  
-- Criar **telas em Vue** para gerenciar produtos, compras e vendas.  
+- Criar **telas em Vue** para gerenciar produtos, compras e vendas.
+- Criar um ambiente dockerizado com backend, frontend e banco, contendo dockerfile para o front e back e docker composer com os dois serviços mais banco de dados mysql.
+- o projeto deve ser descoplado oh seja a estrutura deve ser de um projeto backend sendo a api e o frontend desacoplado do back.
+  /projeto
+│
+├── docker-compose.yml
+│
+├── frontend/
+│   └── Dockerfile
+│
+└── backend/
+    └── Dockerfile
 
 ---
 
