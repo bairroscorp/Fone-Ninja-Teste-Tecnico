@@ -12,6 +12,7 @@ class Compra extends Model
     protected $fillable = [
         'fornecedor',
         'total',
+        'status',
         'created_at',
     ];
 
@@ -26,5 +27,10 @@ class Compra extends Model
     public function itens(): HasMany
     {
         return $this->hasMany(CompraItem::class);
+    }
+
+    public function isAtiva(): bool
+    {
+        return $this->status === 'ativa';
     }
 }

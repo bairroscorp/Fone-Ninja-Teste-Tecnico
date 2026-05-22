@@ -50,4 +50,26 @@ class EstoqueService
             'estoque' => $produto->estoque + $quantidade,
         ]);
     }
+
+    public function reverterEntrada(Produto $produto, int $quantidade, float $precoUnitario): void
+    {
+        $produto = Produto::lockForUpdate()->findOrFail($produto->id);
+
+        if ($produto->estoque < $quantidade) {
+            throw new EstoqueInsuficienteException($produto->nome);
+        }
+
+        $estoqueAtual = $produto->estoque;
+        $custoAtual = (float) $produto->custo_medio;
+        $novoEstoque = $estoqueAtual - $quantidade;
+
+        $novoCustoMedio = $novoEstoque > 0
+            ? max(0, (($estoqueAtual * $custoAtual) - ($quantidade * $precoUnitario)) / $novoEstoque)
+            : 0;
+
+        $produto->update([
+            'estoque' => $novoEstoque,
+            'custo_medio' => round($novoCustoMedio, 4),
+        ]);
+    }
 }

@@ -7,6 +7,7 @@ import BaseModal from '../components/ui/BaseModal.vue'
 import BaseButton from '../components/ui/BaseButton.vue'
 import IconButton from '../components/ui/IconButton.vue'
 import CompraForm from '../components/compras/CompraForm.vue'
+import { Info } from 'lucide-vue-next'
 import { useCrudModal } from '../composables/useCrudModal'
 import { useSwal } from '../composables/useSwal'
 import { useAsync } from '../composables/useAsync'
@@ -24,13 +25,14 @@ const detailCompra = ref(null)
 const detailOpen = ref(false)
 const { isOpen, openCreate, close } = useCrudModal()
 const { loading, execute } = useAsync()
-const { success, error } = useSwal()
+const { success, error, confirmAction } = useSwal()
 
 const columns = [
   { key: 'created_at', label: 'Data', format: (v) => formatDate(v) },
   { key: 'fornecedor', label: 'Fornecedor' },
   { key: 'itens_count', label: 'Itens' },
   { key: 'total', label: 'Total', format: (v) => formatMoney(v) },
+  { key: 'status', label: 'Status' },
 ]
 
 const formatMoney = (value) =>
@@ -95,6 +97,24 @@ const handleView = async (row) => {
   detailOpen.value = true
 }
 
+const handleCancel = async (row) => {
+  const result = await confirmAction(
+    'Cancelar compra?',
+    'O estoque será baixado e o custo médio recalculado para todos os itens desta compra.',
+    'Sim, cancelar'
+  )
+  if (!result.isConfirmed) return
+
+  try {
+    await execute(() => comprasApi.cancelar(row.id))
+    await success('Compra cancelada!', 'Estoque e custo médio revertidos.')
+    await load()
+    await produtosStore.fetchProdutos()
+  } catch (e) {
+    await error('Erro ao cancelar compra', e.friendlyMessage)
+  }
+}
+
 onMounted(load)
 </script>
 
@@ -106,9 +126,37 @@ onMounted(load)
       </template>
     </PageHeader>
 
+    <div
+      class="mb-4 flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600"
+    >
+      <Info class="w-5 h-5 shrink-0 text-indigo-500 mt-0.5" />
+      <p>
+        Compras ativas podem ser <strong class="text-slate-700">canceladas</strong> — o estoque é
+        revertido e o custo médio recalculado. O cancelamento só é permitido se ainda houver estoque
+        suficiente de cada item (ou seja, se parte da compra já foi vendida, não será possível
+        cancelar).
+      </p>
+    </div>
+
     <BaseTable :columns="columns" :rows="compras" :loading="loading">
+      <template #cell-status="{ value }">
+        <span
+          class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+          :class="value === 'ativa' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+        >
+          {{ value === 'ativa' ? 'Ativa' : 'Cancelada' }}
+        </span>
+      </template>
       <template #actions="{ row }">
-        <IconButton variant="view" title="Ver detalhes" @click="handleView(row)" />
+        <div class="flex justify-end gap-1">
+          <IconButton variant="view" title="Ver detalhes" @click="handleView(row)" />
+          <IconButton
+            v-if="row.status === 'ativa'"
+            variant="cancel"
+            title="Cancelar compra"
+            @click="handleCancel(row)"
+          />
+        </div>
       </template>
     </BaseTable>
 
@@ -131,6 +179,7 @@ onMounted(load)
       <div v-if="detailCompra" class="space-y-4">
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div><span class="text-slate-500">Fornecedor:</span> {{ detailCompra.fornecedor }}</div>
+          <div><span class="text-slate-500">Status:</span> {{ detailCompra.status === 'ativa' ? 'Ativa' : 'Cancelada' }}</div>
           <div><span class="text-slate-500">Total:</span> {{ formatMoney(detailCompra.total) }}</div>
         </div>
         <table class="w-full text-sm">

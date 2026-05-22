@@ -13,6 +13,7 @@ class CompraResource extends JsonResource
             'id' => $this->id,
             'fornecedor' => $this->fornecedor,
             'total' => (float) $this->total,
+            'status' => $this->status,
             'created_at' => $this->created_at?->toISOString(),
             'itens' => CompraItemResource::collection($this->whenLoaded('itens')),
         ];

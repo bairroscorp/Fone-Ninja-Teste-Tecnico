@@ -15,6 +15,7 @@ Route::delete('/produtos/{produto}', [ProdutoController::class, 'destroy']);
 Route::get('/compras', [CompraController::class, 'index']);
 Route::get('/compras/{compra}', [CompraController::class, 'show']);
 Route::post('/compras', [CompraController::class, 'store']);
+Route::post('/compras/{compra}/cancelar', [CompraController::class, 'cancelar']);
 
 Route::get('/vendas', [VendaController::class, 'index']);
 Route::get('/vendas/{venda}', [VendaController::class, 'show']);

@@ -9,6 +9,7 @@ use App\Models\Compra;
 use App\Services\CompraService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use InvalidArgumentException;
 
 class CompraController extends Controller
 {
@@ -39,5 +40,16 @@ class CompraController extends Controller
         return (new CompraResource($compra))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function cancelar(Compra $compra): CompraResource|JsonResponse
+    {
+        try {
+            $compra = $this->compraService->cancelar($compra);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return new CompraResource($compra);
     }
 }
