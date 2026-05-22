@@ -122,3 +122,45 @@ Implemente as seguintes telas:
   - Exibir mensagens de sucesso ou erro (ex: “Estoque insuficiente”).
 
 ⚡ Diferencial: Tela para listar todas as vendas e compras.
+
+---
+
+## 🚀 Como executar (implementação)
+
+### Pré-requisitos
+
+- [Docker](doc/instalacao-docker.md) e Docker Compose instalados
+
+### Subir o projeto (primeira vez)
+
+```bash
+cp .env.example .env
+bash scripts/setup-docker.sh
+```
+
+Ou manualmente:
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+### Acessar
+
+| Serviço | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| API | http://localhost:8000/api/produtos |
+
+As **migrations rodam automaticamente** ao iniciar o backend.
+
+### Comandos úteis
+
+```bash
+docker compose ps          # status dos containers
+docker compose logs -f     # logs em tempo real
+docker compose down        # parar tudo
+cd backend && php artisan test   # testes automatizados
+```
+
+Documentação completa: [doc/README.md](doc/README.md)
